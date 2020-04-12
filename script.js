@@ -1,51 +1,55 @@
-let body = document.body;
 let url = window.location.toString();
 
-let nameUrl= (url) => {
-    let getUrl = url.split('=');
-    let name = getUrl[1];
-    if(name == undefined) {
-        name = 'johayo';
+let getUsername = (url) => {
+    let urlArray = url.split('=');
+    let userName = urlArray[1];
+    if (userName === undefined){
+        userName = 'johayo';
     }
-    return name;
+    return userName;
 }
 
-let name = nameUrl(url);
+let name = getUsername(url);
 
 fetch('https://api.github.com/users/' + name)
     .then(res => res.json())
     .then(json => {
-        avatar = json.avatar_url;
-        userName = json.name;
-        description = json.bio;
-        url = json.url;
-        let createName = () => {
-            let userName = document.createElement('h1');
-            userName.innerHTML = name;
-            body.appendChild(userName);
+        let avatar = json.avatar_url;
+        let name = json.login;
+        let bio = json.bio;
+        let profile =json.html_url;
+        if (name) {
+
+            let addAvatar = () => {
+                let newAvatar = document.createElement('img');
+                newAvatar.src = avatar;
+                let addString = document.createElement('br');
+                document.body.appendChild(newAvatar);
+                document.body.appendChild(addString);
+            }
+
+            let addBio = () => {
+                let newBio = document.createElement('p');
+                newBio.innerHTML = bio;
+                document.body.appendChild(newBio);
+            }
+
+            let addProfile = () => {
+                let elementForLink = document.createElement('a');
+                let elementForHeader = document.createElement('h2');
+                elementForHeader.innerText = name;
+                elementForLink.href = profile;
+                document.body.appendChild(elementForLink);
+                elementForLink.appendChild(elementForHeader);
+            }
+
+            addProfile();
+            addBio();
+            addAvatar();
         }
-        let createDescription = () => {
-            let userDescription = document.createElement('h3');
-            userDescription.innerHTML = description;
-            body.appendChild(userDescription);
+        else {
+            alert('Информация о пользователе не найдена')
         }
-        let createAvatar = () => {
-            let userAvatar = document.createElement('img');
-            let newString = document.createElement('br');
-            userAvatar.src = avatar;
-            body.appendChild(userAvatar);
-            body.appendChild(newString);
-        }
-        let createUrl = () => {
-            let userUrl = document.createElement('a');
-            let text = document.createTextNode('profile');
-            userUrl.appendChild(text);
-            userUrl.href = 'https://github.com/' + name;
-            body.appendChild(userUrl);
-        }
-        createName();
-        createDescription();
-        createAvatar();
-        createUrl();
     })
-    .catch(err => alert('Информация о пользователе не доступна'))
+
+    .catch(err => alert(err + ' Информация о пользователе не найдена'));
