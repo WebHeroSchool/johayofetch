@@ -1,3 +1,6 @@
+let preloader = document.getElementById('preloader');
+let date = new Date();
+
 let url = window.location.toString();
 
 let getUsername = (url) => {
@@ -11,8 +14,17 @@ let getUsername = (url) => {
 
 let name = getUsername(url);
 
-fetch('https://api.github.com/users/' + name)
-    .then(res => res.json())
+let getDate = new Promise((resolve, reject) => {
+    setTimeout(() => date ? resolve(date) : reject ('Не найдено'), 5000)
+});
+
+let getUserDate = fetch('https://api.github.com/users/' + name);
+    Promise.all([getUserDate, getDate])
+    .then(([request, date]) => {
+        requestInfo = request;
+        requestDate = date;
+    })
+    .then(res => requestInfo.json())
     .then(json => {
         let avatar = json.avatar_url;
         let name = json.login;
@@ -43,9 +55,18 @@ fetch('https://api.github.com/users/' + name)
                 elementForLink.appendChild(elementForHeader);
             }
 
+            let addDate = () => {
+                let newDate = document.createElement('p');
+                newDate.innerHTML = requestDate;
+                document.body.appendChild(newDate);
+            }
+
+            preloader.style.display = 'none';
+
             addProfile();
             addBio();
             addAvatar();
+            addDate();
         }
         else {
             alert('Информация о пользователе не найдена')
